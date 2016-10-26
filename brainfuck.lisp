@@ -7,16 +7,16 @@
 
 ;;; "brainfuck" goes here. Hacks and glory await!
 
-(defconstant *default-data-pointer* (quote 0))
-(defconstant *default-cell-array* (quote (make-array 30000 :initial-element 0)))
-(defconstant *default-while-stack* (quote nil))
+(defconstant +DEFAULT-DATA-POINTER+ (quote 0))
+(defconstant +DEFAULT-CELL-ARRAY+ (quote (make-array 30000 :initial-element 0)))
+(defconstant +DEFAULT-WHILE-STACK+ (quote nil))
 
-(defparameter *data-pointer* (eval *default-data-pointer*))
-(defparameter *cell-array* (eval *default-cell-array*))
-(defparameter *while-stack* (eval *default-while-stack*))
+(defparameter *data-pointer* (eval +DEFAULT-DATA-POINTER+))
+(defparameter *cell-array* (eval +DEFAULT-CELL-ARRAY+))
+(defparameter *while-stack* (eval +DEFAULT-WHILE-STACK+))
 
 (defmacro current-cell ()
-  (aref *cell-array* *data-pointer*))
+  `(aref *cell-array* *data-pointer*))
 
 (defun advance-pointer ()
   (if (< *data-pointer* (length *cell-array*))
@@ -38,7 +38,7 @@
   (format t "~A" (code-char (current-cell))))
 
 (defun input-byte ()
-  (setf (current-byte) (read-byte *standard-input*)))
+  (setf (aref *cell-array* *data-pointer*) (read-byte *standard-input*)))
 
 (defun jump-forwards ()
   )
@@ -52,11 +52,12 @@
   (setf *while-stack* (eval *default-while-stack*)))
 
 (defun parse-bf (str)
+  (restart-env)
   (do ((string-pos 0 (1+ string-pos)))
-      (= string-pos (length str))
-      (ecase command
+       ((= string-pos (length str)))
+    (ecase (aref str string-pos)
         (#\+ (increment-cell))
-        (#\- (decrease-cell))
+        (#\- (decrement-cell))
         (#\> (advance-pointer))
         (#\< (back-pointer))
         (#\. (output-byte))
