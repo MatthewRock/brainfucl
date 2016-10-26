@@ -1,10 +1,9 @@
 ;;;; brainfuck.asd
 
 (asdf:defsystem #:brainfuck
-  :description "Describe brainfuck here"
-  :author "Your Name <your.name@example.com>"
-  :license "Specify license here"
+  :description "Brainfuck interpreter."
+  :author "Mateusz Malisz <maliszmat at gmail dot com>"
+  :license "WTFPL"
   :serial t
   :components ((:file "package")
                (:file "brainfuck")))
-
