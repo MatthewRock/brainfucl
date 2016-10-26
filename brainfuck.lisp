@@ -1,12 +1,19 @@
 ;;;; brainfuck.lisp
 
+(defpackage #:brainfuck
+  (:use #:cl))
+
 (in-package #:brainfuck)
 
 ;;; "brainfuck" goes here. Hacks and glory await!
 
-(defparameter *data-pointer* 0)
+(defconstant *default-data-pointer* (quote 0))
+(defconstant *default-cell-array* (quote (make-array 30000 :initial-element 0)))
+(defconstant *default-while-stack* (quote nil))
 
-(defparameter *cell-array* (make-array 30000 :initial-element 0))
+(defparameter *data-pointer* (eval *default-data-pointer*))
+(defparameter *cell-array* (eval *default-cell-array*))
+(defparameter *while-stack* (eval *default-while-stack*))
 
 (defmacro current-cell ()
   (aref *cell-array* *data-pointer*))
@@ -38,3 +45,19 @@
 
 (defun jump-backwards ()
   )
+
+(defun restart-env ()
+  (setf *data-pointer* (eval *default-data-pointer*))
+  (setf *cell-array* (eval *default-cell-array*))
+  (setf *while-stack* (eval *default-while-stack*)))
+
+(defun parse-bf (str)
+  (do ((string-pos 0 (1+ string-pos)))
+      (= string-pos (length str))
+      (ecase command
+        (#\+ (increment-cell))
+        (#\- (decrease-cell))
+        (#\> (advance-pointer))
+        (#\< (back-pointer))
+        (#\. (output-byte))
+        (#\, (input-byte)))))
