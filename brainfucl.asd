@@ -1,9 +1,8 @@
-;;;; brainfuck.asd
+;;;; brainfucl.asd
 
-(asdf:defsystem #:brainfuck
+(asdf:defsystem #:brainfucl
   :description "Brainfuck interpreter."
   :author "Mateusz Malisz <maliszmat at gmail dot com>"
   :license "WTFPL"
   :serial t
-  :components ((:file "package")
-               (:file "brainfuck")))
+  :components ((:file "brainfucl")))

@@ -1,11 +1,11 @@
-;;;; brainfuck.lisp
+;;;; brainfucl.lisp
 
-(defpackage #:brainfuck
+(defpackage #:brainfucl
   (:use #:cl))
 
-(in-package #:brainfuck)
+(in-package #:brainfucl)
 
-;;; "brainfuck" goes here. Hacks and glory await!
+;;; "brainfucl" goes here. Hacks and glory await!
 
 (defconstant +DEFAULT-DATA-POINTER+ (quote 0))
 (defconstant +DEFAULT-CELL-ARRAY+ (quote (make-array 30000 :initial-element 0)))
@@ -62,3 +62,16 @@
         (#\< (back-pointer))
         (#\. (output-byte))
         (#\, (input-byte)))))
+
+(defun get-jump-pairs (string)
+  "Return list of pairs (STARTPOS . ENDPOS) of positions of matching brackets."
+  (do ((strlen (length string))
+       (string-pos 0 (1+ string-pos))
+       (stack nil)
+       (result nil))
+      ((= string-pos strlen) (if (null stack)
+                                 result
+                                 (error "Unmatched brackets found in string!")))
+    (case (aref string string-pos)
+      (#\[ (push string-pos stack))
+      (#\] (push (cons (pop stack) string-pos) result)))))
