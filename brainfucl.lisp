@@ -15,45 +15,52 @@
 (defparameter *cell-array* (eval +DEFAULT-CELL-ARRAY+))
 (defparameter *while-stack* (eval +DEFAULT-WHILE-STACK+))
 
+(defparameter *verbose* nil)
+
 (defmacro current-cell ()
   `(aref *cell-array* *data-pointer*))
 
 (defun advance-pointer ()
   (if (< *data-pointer* (length *cell-array*))
       (incf *data-pointer*)
-      (error "No more cells!")))
+      (error "No more cells!"))
+  (when *verbose* (format t "Advanced data pointer to ~D.~%" *data-pointer*)))
 
 (defun back-pointer ()
   (if (zerop *data-pointer*)
       (error "No more cells!")
-      (decf *data-pointer*)))
+      (decf *data-pointer*))
+  (when *verbose* (format t "Backed data pointer to ~D.~%" *data-pointer*)))
 
 (defun increment-cell ()
-  (incf (current-cell)))
+  (incf (current-cell))
+  (when *verbose*
+    (format t "Incremented cell ~D to value ~D.~%"
+            *data-pointer* (aref *cell-array* *data-pointer*))))
 
 (defun decrement-cell ()
-  (decf (current-cell)))
+  (decf (current-cell))
+  (when *verbose*
+    (format t "Decremented cell ~D to value ~D.~%"
+            *data-pointer* (aref *cell-array* *data-pointer*))))
 
 (defun output-byte ()
-  (format t "~A" (code-char (current-cell))))
+  (format t "~D|" (current-cell))
+  ;(format t "~A" (code-char (current-cell)))
+  )
 
 (defun input-byte ()
   (setf (aref *cell-array* *data-pointer*) (read-byte *standard-input*)))
 
-(defun jump-forwards ()
-  )
-
-(defun jump-backwards ()
-  )
-
 (defun restart-env ()
-  (setf *data-pointer* (eval *default-data-pointer*))
-  (setf *cell-array* (eval *default-cell-array*))
-  (setf *while-stack* (eval *default-while-stack*)))
+  (setf *data-pointer* (eval +default-data-pointer+))
+  (setf *cell-array* (eval +default-cell-array+))
+  (setf *while-stack* (eval +default-while-stack+)))
 
 (defun parse-bf (str)
   (restart-env)
-  (do ((string-pos 0 (1+ string-pos)))
+  (do ((jump-pairs (get-jump-pairs str))
+       (string-pos 0 (1+ string-pos)))
        ((= string-pos (length str)))
     (ecase (aref str string-pos)
         (#\+ (increment-cell))
@@ -61,7 +68,13 @@
         (#\> (advance-pointer))
         (#\< (back-pointer))
         (#\. (output-byte))
-        (#\, (input-byte)))))
+        (#\, (input-byte))
+        (#\[ (when (zerop (current-cell))
+               (setf string-pos
+                     (cdr (find string-pos jump-pairs :key #'car)))))
+        (#\] (when (zerop (current-cell))
+               (setf string-pos
+                     (car (find string-pos jump-pairs :key #'cdr))))))))
 
 (defun get-jump-pairs (string)
   "Return list of pairs (STARTPOS . ENDPOS) of positions of matching brackets."
