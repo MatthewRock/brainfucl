@@ -45,9 +45,7 @@
             *data-pointer* (aref *cell-array* *data-pointer*))))
 
 (defun output-byte ()
-  (format t "~D|" (current-cell))
-  ;(format t "~A" (code-char (current-cell)))
-  )
+  (format t "~A" (code-char (current-cell))))
 
 (defun input-byte ()
   (setf (aref *cell-array* *data-pointer*) (read-byte *standard-input*)))
@@ -69,10 +67,11 @@
         (#\< (back-pointer))
         (#\. (output-byte))
         (#\, (input-byte))
+        (#\Space nil)
         (#\[ (when (zerop (current-cell))
                (setf string-pos
                      (cdr (find string-pos jump-pairs :key #'car)))))
-        (#\] (when (zerop (current-cell))
+        (#\] (when (not (zerop (current-cell)))
                (setf string-pos
                      (car (find string-pos jump-pairs :key #'cdr))))))))
 
